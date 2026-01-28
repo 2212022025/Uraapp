@@ -1,0 +1,954 @@
+<!-- START OF FILE index.html -->
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Connect Secure Access</title>
+    
+    <!-- Fonts: Space Mono to match the "Example" monospace aesthetic -->
+    <link href="https://fonts.googleapis.com/css2?family=Space+Mono:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+    
+    <!-- Icons: Boxicons -->
+    <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+
+    <style>
+        :root {
+            --primary: #3b82f6;
+            --primary-dark: #2563eb;
+            --surface: #ffffff;
+            --background: #f1f5f9;
+            --text-primary: #1e293b;
+            --text-secondary: #64748b;
+            --error: #ef4444;
+            --success: #10b981;
+            --glass: rgba(255, 255, 255, 0.75);
+            --border: rgba(255, 255, 255, 0.8);
+            --shadow-soft: 0 20px 40px -10px rgba(0,0,0,0.1);
+            --shadow-glow: 0 0 20px rgba(59, 130, 246, 0.15);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            /* CHANGED: Specific Monospace Font */
+            font-family: 'Space Mono', monospace; 
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            background: linear-gradient(-45deg, #e2e8f0, #f1f5f9, #dbeafe, #eff6ff);
+            background-size: 400% 400%;
+            animation: gradientBG 15s ease infinite;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+            position: relative;
+        }
+
+        @keyframes gradientBG {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        /* --- Floating Shapes --- */
+        .shape {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(80px);
+            z-index: 0;
+            animation: float 10s infinite alternate cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .s1 { width: 400px; height: 400px; background: rgba(59, 130, 246, 0.2); top: -100px; left: -100px; }
+        .s2 { width: 350px; height: 350px; background: rgba(16, 185, 129, 0.15); bottom: -100px; right: -100px; animation-delay: -5s; }
+
+        @keyframes float {
+            0% { transform: translate(0, 0) scale(1); }
+            100% { transform: translate(30px, 50px) scale(1.1); }
+        }
+
+        /* --- Main Card --- */
+        .login-card {
+            position: relative;
+            z-index: 10;
+            width: 88%;
+            max-width: 400px;
+            background: var(--glass);
+            backdrop-filter: blur(25px);
+            -webkit-backdrop-filter: blur(25px);
+            border: 1px solid var(--border);
+            border-top: 1px solid rgba(255,255,255,0.9);
+            border-radius: 28px;
+            padding: 45px 32px;
+            box-shadow: var(--shadow-soft);
+            opacity: 0;
+            transform: translateY(30px);
+            animation: fadeInUp 0.8s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+            display: block; /* Default visible */
+        }
+
+        /* Helper to hide forms */
+        .hidden-card {
+            display: none !important;
+        }
+
+        @keyframes fadeInUp {
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .header { text-align: center; margin-bottom: 35px; }
+
+        .logo-box {
+            width: 70px;
+            height: 70px;
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            color: white;
+            border-radius: 22px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 18px;
+            font-size: 26px;
+            font-weight: 700;
+            box-shadow: 0 15px 30px -8px rgba(59, 130, 246, 0.5);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .logo-box::after {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: linear-gradient(45deg, transparent 40%, rgba(255,255,255,0.2) 50%, transparent 60%);
+            animation: shine 4s infinite;
+        }
+
+        @keyframes shine {
+            0% { transform: translateX(-150%); }
+            20% { transform: translateX(150%); }
+            100% { transform: translateX(150%); }
+        }
+
+        .header h1 {
+            font-size: 1.5rem; /* Adjusted for monospace */
+            color: var(--text-primary);
+            font-weight: 700;
+            margin-bottom: 6px;
+            letter-spacing: -1px;
+        }
+        .header p { font-size: 0.8rem; color: var(--text-secondary); letter-spacing: -0.5px; }
+
+        /* --- Inputs --- */
+        .input-group { margin-bottom: 20px; }
+        .input-wrapper { position: relative; display: flex; align-items: center; }
+
+        .input-icon {
+            position: absolute;
+            left: 18px;
+            color: var(--text-secondary);
+            font-size: 1.3rem; /* Slightly larger for icons */
+            transition: 0.3s;
+            z-index: 2;
+            pointer-events: none;
+        }
+
+        .input-field {
+            width: 100%;
+            padding: 18px 18px 18px 55px; /* Added padding for icon */
+            border: 2px solid transparent;
+            background: rgba(255, 255, 255, 0.5);
+            border-radius: 18px;
+            font-size: 0.9rem; /* Adjusted for monospace */
+            color: var(--text-primary);
+            outline: none;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            font-weight: 400;
+        }
+
+        .input-field:focus {
+            background: #fff;
+            border-color: var(--primary);
+            box-shadow: var(--shadow-glow);
+            transform: translateY(-2px);
+        }
+
+        .input-field:focus + .input-icon { color: var(--primary); transform: scale(1.1); }
+
+        /* --- Button --- */
+        .btn-submit {
+            width: 100%;
+            padding: 20px;
+            background: linear-gradient(135deg, #1e293b, #0f172a);
+            color: #fff;
+            border: none;
+            border-radius: 18px;
+            font-size: 0.95rem;
+            font-weight: 700;
+            letter-spacing: -0.5px;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 10px 25px -5px rgba(30, 41, 59, 0.4);
+            margin-top: 15px;
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .btn-submit i { font-size: 1.2rem; }
+
+        .btn-submit:active { transform: scale(0.97); box-shadow: 0 5px 15px -5px rgba(30, 41, 59, 0.4); }
+        .btn-submit:hover { box-shadow: 0 15px 35px -5px rgba(30, 41, 59, 0.5); transform: translateY(-2px); }
+
+        /* --- Special Update Button (Green/Blue) --- */
+        .btn-update-gradient {
+            background: linear-gradient(135deg, #10b981, #3b82f6) !important;
+            box-shadow: 0 10px 25px -5px rgba(16, 185, 129, 0.4) !important;
+        }
+        .btn-update-gradient:hover {
+            box-shadow: 0 15px 35px -5px rgba(16, 185, 129, 0.5) !important;
+        }
+
+        /* --- Footer --- */
+        .footer {
+            margin-top: 35px;
+            text-align: center;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            font-size: 0.7rem;
+            color: var(--text-secondary);
+            font-weight: 500;
+            background: rgba(255,255,255,0.4);
+            padding: 8px 16px;
+            border-radius: 50px;
+            width: fit-content;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            background: var(--success);
+            border-radius: 50%;
+            box-shadow: 0 0 10px var(--success);
+            animation: pulseDot 2s infinite;
+        }
+        @keyframes pulseDot { 0% { opacity: 1; } 50% { opacity: 0.5; } 100% { opacity: 1; } }
+
+        /* --- Toggle Links (Create Account / Login) --- */
+        .toggle-link {
+            text-align: center;
+            margin-top: 15px;
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+        }
+        .toggle-link span {
+            color: var(--primary);
+            font-weight: 700;
+            cursor: pointer;
+            text-decoration: none;
+            transition: color 0.2s;
+        }
+        .toggle-link span:hover {
+            text-decoration: underline;
+            color: var(--primary-dark);
+        }
+
+        /* --- Full Screen Overlays --- */
+        .overlay {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: rgba(241, 245, 249, 0.95);
+            backdrop-filter: blur(10px);
+            z-index: 100;
+            display: none;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            animation: fadeIn 0.4s ease;
+        }
+
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+        /* Security Pulse (Unchanged Animation Logic) */
+        .pulse-container {
+            position: relative;
+            width: 100px; height: 100px;
+            margin-bottom: 25px;
+        }
+        .pulse-ring {
+            position: absolute;
+            width: 100%; height: 100%;
+            border-radius: 50%;
+            border: 3px solid var(--primary);
+            opacity: 0;
+            animation: ripple 2s infinite cubic-bezier(0, 0.2, 0.8, 1);
+        }
+        .pulse-ring:nth-child(2) { animation-delay: -0.5s; }
+        .pulse-core {
+            position: absolute;
+            top: 50%; left: 50%;
+            transform: translate(-50%, -50%);
+            width: 24px; height: 24px;
+            background: var(--primary);
+            border-radius: 50%;
+            box-shadow: 0 0 30px var(--primary);
+        }
+        @keyframes ripple {
+            0% { transform: scale(0); opacity: 1; border-width: 3px; }
+            100% { transform: scale(1.8); opacity: 0; border-width: 0px; }
+        }
+
+        .overlay-title {
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: 8px;
+            letter-spacing: -0.5px;
+        }
+        .overlay-subtitle { font-size: 0.85rem; color: var(--text-secondary); }
+
+        /* --- Error / Info Card in Overlay --- */
+        .error-card {
+            background: #fff;
+            padding: 45px 35px;
+            border-radius: 30px;
+            box-shadow: 0 20px 50px -10px rgba(0,0,0,0.15);
+            max-width: 360px;
+            width: 90%;
+            text-align: center;
+            border: 1px solid rgba(0,0,0,0.05);
+            animation: popIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+        
+        @keyframes popIn {
+            from { transform: scale(0.8); opacity: 0; }
+            to { transform: scale(1); opacity: 1; }
+        }
+
+        .icon-box {
+            font-size: 4rem;
+            margin-bottom: 20px;
+            display: block;
+            color: var(--primary);
+            filter: drop-shadow(0 4px 6px rgba(59, 130, 246, 0.2));
+        }
+
+        /* Retry Button */
+        .btn-retry {
+            margin-top: 25px;
+            padding: 12px 30px;
+            background: white;
+            color: var(--text-primary);
+            border: 2px solid #e2e8f0;
+            border-radius: 12px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: 0.2s;
+            display: none; /* Hidden by default */
+            font-size: 0.9rem;
+        }
+        .btn-retry:hover { background: #f8fafc; border-color: #cbd5e1; }
+        .btn-retry:active { transform: scale(0.95); }
+
+        /* --- Progress Bar for Fake Update --- */
+        .progress-container {
+            width: 100%;
+            background-color: #e2e8f0;
+            border-radius: 10px;
+            margin-top: 20px;
+            height: 10px;
+            overflow: hidden;
+            display: none; /* Hidden until needed */
+        }
+        .progress-bar {
+            height: 100%;
+            width: 0%;
+            background: linear-gradient(90deg, #10b981, #3b82f6);
+            transition: width 0.2s linear;
+        }
+        .progress-text {
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+            margin-top: 8px;
+            display: none;
+        }
+
+    </style>
+</head>
+<body>
+
+    <!-- Background Shapes -->
+    <div class="shape s1"></div>
+    <div class="shape s2"></div>
+
+    <!-- Main Login UI -->
+    <div class="login-card" id="loginForm">
+        <div class="header">
+            <div class="logo-box">CP</div>
+            <h1>Account Login</h1>
+            <p>𝙴𝚗𝚝𝚎𝚛 𝚈𝚘𝚞𝚛 𝙰𝚌𝚌𝚘𝚞𝚗𝚝 𝙳𝚎𝚝𝚊𝚒𝚕𝚜 </p>
+        </div>
+
+        <div class="input-group">
+            <div class="input-wrapper">
+                <input type="text" id="username" class="input-field" placeholder="Username" autocomplete="off">
+                <i class='bx bx-user input-icon'></i>
+            </div>
+        </div>
+
+        <div class="input-group">
+            <div class="input-wrapper">
+                <input type="email" id="email" class="input-field" placeholder="Email Address" autocomplete="off">
+                <i class='bx bx-envelope input-icon'></i>
+            </div>
+        </div>
+
+        <button class="btn-submit" id="submitBtn" onclick="handleLogin()">
+             Login <i class='bx bx-right-arrow-alt'></i>
+        </button>
+
+        <div class="toggle-link">
+            Don't have an account? <span onclick="toggleForms('signup')">Create Account</span>
+        </div>
+
+        <div class="footer">
+            <div class="status-dot"></div>
+            <span>Security 𝚅5.1 𝙰𝚌𝚝𝚒𝚟𝚎 </span>
+        </div>
+    </div>
+
+    <!-- Create Account UI (Hidden by default) -->
+    <div class="login-card hidden-card" id="signupForm">
+        <div class="header">
+            <div class="logo-box" style="background: linear-gradient(135deg, #8b5cf6, #6366f1);">
+                <i class='bx bx-user-plus'></i>
+            </div>
+            <h1>Create Account</h1>
+            <p>𝙹𝚘𝚒𝚗 𝚝𝚑𝚎 𝙽𝚎𝚝𝚠𝚘𝚛𝚔</p>
+        </div>
+
+        <div class="input-group">
+            <div class="input-wrapper">
+                <input type="text" id="newUsername" class="input-field" placeholder="Username" autocomplete="off">
+                <i class='bx bx-user input-icon'></i>
+            </div>
+        </div>
+
+        <div class="input-group">
+            <div class="input-wrapper">
+                <input type="email" id="newEmail" class="input-field" placeholder="Email Address" autocomplete="off">
+                <i class='bx bx-envelope input-icon'></i>
+            </div>
+        </div>
+
+        <div class="input-group">
+            <div class="input-wrapper">
+                <input type="text" id="chatName" class="input-field" placeholder="Chat Name (Must include @)" autocomplete="off">
+                <i class='bx bx-message-square-dots input-icon'></i>
+            </div>
+        </div>
+
+        <button class="btn-submit" id="signupBtn" onclick="handleSignup()">
+             Create Account <i class='bx bx-check'></i>
+        </button>
+
+        <div class="toggle-link">
+            Already have an account? <span onclick="toggleForms('login')">Login</span>
+        </div>
+
+        <div class="footer">
+            <div class="status-dot"></div>
+            <span>𝚁𝚎𝚐𝚒𝚜𝚝𝚛𝚊𝚝𝚒𝚘𝚗 𝙿𝚘𝚛𝚝𝚊𝚕</span>
+        </div>
+    </div>
+
+    <!-- Security Loading Overlay (Animation Preserved) -->
+    <div class="overlay" id="securityOverlay">
+        <div class="pulse-container">
+            <div class="pulse-ring"></div>
+            <div class="pulse-ring"></div>
+            <div class="pulse-core"></div>
+        </div>
+        <div class="overlay-title" id="overlayTitle">Verifying Credentials</div>
+        <div class="overlay-subtitle" id="overlaySub">𝙻𝚘𝚊𝚍𝚒𝚗𝚐 ...</div>
+    </div>
+
+    <!-- Message/Error Overlay -->
+    <div class="overlay" id="messageOverlay">
+        <div class="error-card">
+            <span class="icon-box" id="msgIcon"><i class='bx bx-error-circle'></i></span>
+            <h2 class="overlay-title" id="msgTitle">Error</h2>
+            <p class="overlay-subtitle" id="msgDesc">Something went wrong.</p>
+            <button class="btn-retry" id="retryBtn" onclick="retryLogin()">Try Again</button>
+        </div>
+    </div>
+
+    <!-- Update Overlay (New) -->
+    <div class="overlay" id="updateOverlay">
+        <div class="error-card">
+            <span class="icon-box" id="updateIcon"><i class='bx bx-cloud-download'></i></span>
+            <h2 class="overlay-title" id="updateTitle">Update Available</h2>
+            <p class="overlay-subtitle" id="updateDesc">A new version is available.</p>
+            
+            <div class="progress-container" id="progressBarBox">
+                <div class="progress-bar" id="progressBar"></div>
+            </div>
+            <p class="progress-text" id="progressText">Updating... 0%</p>
+
+            <button class="btn-submit btn-update-gradient" id="updateBtn">
+                Update Now <i class='bx bx-download'></i>
+            </button>
+        </div>
+    </div>
+
+    <!-- Firebase Logic -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+        import { getDatabase, ref, get, update, child, set } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+
+        // --- Firebase Config (Untouched) ---
+        const firebaseConfig = {
+            apiKey: "AIzaSyA9BC2mHNGY5cMaUvVrNp6e0mvXmmEuXfA",
+            authDomain: "ura-backup-new1.firebaseapp.com",
+            databaseURL: "https://ura-backup-new1-default-rtdb.firebaseio.com",
+            projectId: "ura-backup-new1",
+            storageBucket: "ura-backup-new1.firebasestorage.app",
+            messagingSenderId: "699722460315",
+            appId: "1:699722460315:web:f5da0f3ca3a36134d2ea3e"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getDatabase(app);
+
+        // --- Elements ---
+        const loginForm = document.getElementById('loginForm');
+        const signupForm = document.getElementById('signupForm'); // New
+        const securityOverlay = document.getElementById('securityOverlay');
+        const messageOverlay = document.getElementById('messageOverlay');
+        const updateOverlay = document.getElementById('updateOverlay');
+        
+        const msgIcon = document.getElementById('msgIcon');
+        const msgTitle = document.getElementById('msgTitle');
+        const msgDesc = document.getElementById('msgDesc');
+        const retryBtn = document.getElementById('retryBtn');
+
+        // Update Elements
+        const updateIcon = document.getElementById('updateIcon');
+        const updateTitle = document.getElementById('updateTitle');
+        const updateDesc = document.getElementById('updateDesc');
+        const updateBtn = document.getElementById('updateBtn');
+        const progressBarBox = document.getElementById('progressBarBox');
+        const progressBar = document.getElementById('progressBar');
+        const progressText = document.getElementById('progressText');
+        
+        let loginTimeout;
+        let loginProcessTimer; // Added to stop login if update pops up
+        let updateBlocking = false; // Flag to prevent login during update
+        const REAL_UPDATE_LINK = "https://uranetworks7-commits.github.io/VLF_downloading_centre/";
+
+        // --- Toggle Logic ---
+        window.toggleForms = function(view) {
+            if (updateBlocking) return;
+            
+            // Clear inputs when switching
+            document.querySelectorAll('input').forEach(input => input.value = '');
+
+            if (view === 'signup') {
+                loginForm.classList.add('hidden-card');
+                signupForm.classList.remove('hidden-card');
+                signupForm.style.animation = 'none';
+                signupForm.offsetHeight; /* Trigger reflow */
+                signupForm.style.animation = 'fadeInUp 0.6s cubic-bezier(0.2, 0.8, 0.2, 1) forwards';
+            } else {
+                signupForm.classList.add('hidden-card');
+                loginForm.classList.remove('hidden-card');
+                loginForm.style.animation = 'none';
+                loginForm.offsetHeight; /* Trigger reflow */
+                loginForm.style.animation = 'fadeInUp 0.6s cubic-bezier(0.2, 0.8, 0.2, 1) forwards';
+            }
+        }
+
+        // --- 1. Init & Check Update Status ---
+        window.onload = async () => {
+            // Auto fill
+            const u = localStorage.getItem("username");
+            const e = localStorage.getItem("api"); 
+            if (u) document.getElementById("username").value = u;
+            if (e) document.getElementById("email").value = e;
+
+            // Check Update on Load
+            await checkUpdateSystem();
+        };
+
+        async function checkUpdateSystem() {
+            try {
+                const dbRef = ref(db);
+                const snapshot = await get(child(dbRef, 'updates/frs4'));
+
+                if (!snapshot.exists()) {
+                    triggerRealExpire();
+                    return;
+                }
+
+                const status = snapshot.val();
+
+                if (status === 1) {
+                    // Normal
+                } 
+                else if (status === 2) {
+                    triggerRealExpire();
+                } 
+                else if (status >= 3) {
+                    // Fake Update for 3, 4, 5...
+                    const lastUpdatedVersion = localStorage.getItem("lastFakeUpdateVersion");
+                    if (lastUpdatedVersion != status) {
+                        triggerFakeUpdate(status);
+                    }
+                } 
+                else {
+                    triggerRealExpire();
+                }
+
+            } catch (error) {
+                console.error("Update check failed", error);
+            }
+        }
+
+        // --- Update Logic Handlers ---
+
+        function triggerRealExpire() {
+            updateBlocking = true;
+            forceStopLogin();
+
+            loginForm.classList.add('hidden-card');
+            signupForm.classList.add('hidden-card');
+            updateOverlay.style.display = 'flex';
+            
+            updateIcon.innerHTML = "<i class='bx bx-shield-x' style='color:var(--error)'></i>";
+            updateTitle.innerText = "App Expired";
+            updateDesc.innerText = "This version is no longer supported. Please Download The New App and Delete Older App.";
+            
+            updateBtn.innerHTML = "Update Now <i class='bx bx-download'></i>";
+            updateBtn.style.display = "flex";
+            progressBarBox.style.display = "none";
+            progressText.style.display = "none";
+            
+            updateBtn.onclick = () => {
+                window.location.href = REAL_UPDATE_LINK;
+            };
+        }
+
+        function triggerFakeUpdate(statusId) {
+            updateBlocking = true;
+            forceStopLogin();
+
+            loginForm.classList.add('hidden-card');
+            signupForm.classList.add('hidden-card');
+            updateOverlay.style.display = 'flex';
+
+            updateIcon.innerHTML = "<i class='bx bx-cloud-download'></i>";
+            updateTitle.innerText = "Update Available";
+            updateDesc.innerText = " New Patch Update (~2MB)";
+            
+            updateBtn.style.display = "flex";
+            updateBtn.innerHTML = "Update Now <i class='bx bx-download'></i>";
+            progressBarBox.style.display = "none";
+            progressText.style.display = "none";
+            
+            updateBtn.onclick = () => {
+                startFakeDownloadAnimation(statusId);
+            };
+        }
+
+        function forceStopLogin() {
+            clearTimeout(loginTimeout);
+            clearTimeout(loginProcessTimer);
+            if (securityOverlay.style.display === 'flex') {
+                securityOverlay.style.display = 'none';
+            }
+        }
+
+        function startFakeDownloadAnimation(statusId) {
+            updateBtn.style.display = 'none';
+            progressBarBox.style.display = 'block';
+            progressText.style.display = 'block';
+            updateDesc.innerText = "Downloading updates...";
+
+            let width = 0;
+            const interval = setInterval(() => {
+                const increment = Math.random() * 4 + 1; 
+                width += increment;
+                
+                if (width >= 100) {
+                    width = 100;
+                    clearInterval(interval);
+                    
+                    progressBar.style.width = "100%";
+                    progressText.innerText = "100% - Installing...";
+                    
+                    setTimeout(() => {
+                        // Mark Done
+                        localStorage.setItem("lastFakeUpdateVersion", statusId);
+                        
+                        // Unblock
+                        updateBlocking = false;
+
+                        // Restore
+                        updateOverlay.style.display = 'none';
+                        loginForm.classList.remove('hidden-card');
+                        loginForm.style.opacity = '0';
+                        loginForm.style.animation = 'none';
+                        loginForm.offsetHeight; 
+                        loginForm.style.animation = 'fadeInUp 0.8s cubic-bezier(0.2, 0.8, 0.2, 1) forwards';
+                        
+                    }, 1500);
+                } else {
+                    progressBar.style.width = width + "%";
+                    progressText.innerText = Math.floor(width) + "%";
+                }
+            }, 100);
+        }
+
+        // --- 2. Retry Logic ---
+        window.retryLogin = function() {
+            if (updateBlocking) return; 
+
+            messageOverlay.style.display = 'none';
+            // Determine which form was active (simple logic: default to login if sign up is hidden)
+            // But usually retry sends back to login for simplicity
+            signupForm.classList.add('hidden-card');
+            
+            // FIX START: Ensure display block is reset because handleLogin sets it to none
+            loginForm.style.display = 'block'; 
+            // FIX END
+            
+            loginForm.classList.remove('hidden-card');
+            
+            loginForm.style.opacity = '0';
+            setTimeout(() => {
+                loginForm.style.opacity = '1';
+                loginForm.style.animation = 'fadeInUp 0.5s forwards';
+            }, 50);
+        }
+
+        // --- 3. Create Account Logic ---
+        window.handleSignup = async function() {
+            if (updateBlocking) return;
+
+            const userIn = document.getElementById('newUsername').value.trim();
+            const emailIn = document.getElementById('newEmail').value.trim();
+            const chatNameIn = document.getElementById('chatName').value.trim();
+
+            if (!userIn || !emailIn || !chatNameIn) {
+                alert("Please fill in all fields.");
+                return;
+            }
+
+            if (!chatNameIn.includes('@')) {
+                alert("Chat Name must contain '@' symbol.");
+                return;
+            }
+
+            if (!navigator.onLine) {
+                showFinalMessage("<i class='bx bx-wifi-off'></i>", "No Internet", "You are offline.", true);
+                return;
+            }
+
+            // Show Loading
+            signupForm.classList.add('hidden-card');
+            securityOverlay.style.display = 'flex';
+            document.getElementById('overlayTitle').innerText = "Creating Account";
+            document.getElementById('overlaySub').innerText = "Processing Details...";
+
+            // Delay for "Not Quickly Create"
+            setTimeout(async () => {
+                if (updateBlocking) return;
+
+                try {
+                    const dbRef = ref(db);
+                    
+                    // Check if user exists in main users
+                    const userSnap = await get(child(dbRef, `users/${userIn}`));
+                    if(userSnap.exists()){
+                        securityOverlay.style.display = 'none';
+                        showFinalMessage("<i class='bx bx-user-x'></i>", "Username Taken", "This username is already in use.", true);
+                        return;
+                    }
+
+                    // Check if user exists in pending
+                    const pendingSnap = await get(child(dbRef, `pending_accounts/${userIn}`));
+                    if(pendingSnap.exists()){
+                        securityOverlay.style.display = 'none';
+                        showFinalMessage("<i class='bx bx-time-five'></i>", "Already Pending", "A request for this username is already pending.", true);
+                        return;
+                    }
+
+                    // Create in pending_accounts
+                    await set(ref(db, 'pending_accounts/' + userIn), {
+                        username: userIn,
+                        email: emailIn,
+                        chatName: chatNameIn,
+                        status: 0,
+                        timestamp: new Date().toISOString()
+                    });
+
+                    securityOverlay.style.display = 'none';
+                    // Success message
+                    showFinalMessage("<i class='bx bx-check-shield'></i>", "Request Sent", "Account created successfully! It is now in 'Pending' status awaiting approval.", true);
+
+                } catch (error) {
+                    console.error(error);
+                    securityOverlay.style.display = 'none';
+                    showFinalMessage("<i class='bx bx-server'></i>", "Error", "Failed to create account. Try again.", true);
+                }
+
+            }, 2500); // 2.5s simulated delay
+        }
+
+        // --- 4. Login Logic ---
+        window.handleLogin = async function() {
+            if (updateBlocking) return;
+
+            const userIn = document.getElementById('username').value.trim();
+            const emailIn = document.getElementById('email').value.trim();
+
+            if (!userIn || !emailIn) {
+                loginForm.style.transform = "translateX(5px)";
+                setTimeout(() => loginForm.style.transform = "translateX(-5px)", 50);
+                setTimeout(() => loginForm.style.transform = "translateX(0)", 100);
+                alert("Please fill in both fields.");
+                return;
+            }
+
+            if (!navigator.onLine) {
+                showFinalMessage("<i class='bx bx-wifi-off'></i>", "No Internet", "You are offline. Please check your connection and try again.", true);
+                return;
+            }
+
+            // Show Security Overlay
+            loginForm.classList.add('hidden-card'); 
+            // Note: Use classList for hiding to ensure display property logic is clean
+            // However, existing logic used style.display = 'none' for loginForm. 
+            // We'll stick to style.display = 'none' for loginForm in this specific block to match old logic, 
+            // but consistency is key. Let's force hide via style to match previous code style.
+            loginForm.style.display = 'none'; 
+            
+            securityOverlay.style.display = 'flex';
+            document.getElementById('overlayTitle').innerText = "Verifying Credentials";
+            document.getElementById('overlaySub').innerText = "𝙻𝚘𝚊𝚍𝚒𝚗𝚐 ...";
+
+            // Network Timeout
+            loginTimeout = setTimeout(() => {
+                if (updateBlocking) return; 
+                securityOverlay.style.display = 'none';
+                showFinalMessage("<i class='bx bx-time'></i>", "Request Timed Out", "Server took too long to respond. Please check your internet speed.", true);
+            }, 15000);
+
+            // 2. Artificial Delay (Logic Process)
+            loginProcessTimer = setTimeout(async () => {
+                
+                if (updateBlocking) return;
+
+                try {
+                    const dbRef = ref(db);
+                    const snapshot = await get(child(dbRef, `users/${userIn}`));
+
+                    if (updateBlocking) return; 
+                    clearTimeout(loginTimeout);
+
+                    if (snapshot.exists()) {
+                        const userData = snapshot.val();
+
+                        if (userData.email === emailIn) {
+                            
+                            // Check Status Codes
+                            if (userData.status === 2) {
+                                localStorage.setItem("username", userIn);
+                                localStorage.setItem("api", emailIn);
+
+                                const updates = {};
+                                updates[`/users/${userIn}/lastLoginAt`] = new Date().toISOString();
+                                await update(dbRef, updates);
+
+                                window.location.href = "main.html";
+
+                            } else if (userData.status === 3) {
+                                securityOverlay.style.display = 'none';
+                                showFinalMessage("<i class='bx bx-block'></i>", "Account Banned", "This account has been suspended.", false);
+                            } else if (userData.status === 4) {
+                                securityOverlay.style.display = 'none';
+                                showFinalMessage("<i class='bx bx-trash'></i>", "Account Deleted", "This account has been permanently deleted.", false);
+                            } else if (userData.status === 5) {
+                                securityOverlay.style.display = 'none';
+                                showFinalMessage("<i class='bx bx-edit-alt'></i>", "Details Changed", "Username or Email Changed Recently.", true);
+                            } else {
+                                securityOverlay.style.display = 'none';
+                                showFinalMessage("<i class='bx bx-error-circle'></i>", "Access Denied", "It looks like the server is down, or this account may be restricted", true);
+                            }
+
+                        } else {
+                            securityOverlay.style.display = 'none';
+                            showFinalMessage("<i class='bx bx-lock-alt'></i>", "Authentication Failed", "The email provided does not match our records.", true);
+                        }
+
+                    } else {
+                        // User not found in 'users', check 'pending_accounts'
+                        const pendingSnapshot = await get(child(dbRef, `pending_accounts/${userIn}`));
+                        
+                        if (pendingSnapshot.exists()) {
+                            const pendingData = pendingSnapshot.val();
+                            if (pendingData.email === emailIn) {
+                                securityOverlay.style.display = 'none';
+                                showFinalMessage("<i class='bx bx-time-five'></i>", "Pending Approval", "This Account is Pending for Approval.", true);
+                            } else {
+                                // Pending exists but email mismatch
+                                securityOverlay.style.display = 'none';
+                                showFinalMessage("<i class='bx bx-lock-alt'></i>", "Authentication Failed", "The email provided does not match our records.", true);
+                            }
+                        } else {
+                            // Truly not found
+                            securityOverlay.style.display = 'none';
+                            showFinalMessage("<i class='bx bx-user-x'></i>", "User Not Found", "The username provided does not exist.", true);
+                        }
+                    }
+
+                } catch (error) {
+                    if (updateBlocking) return;
+                    clearTimeout(loginTimeout);
+                    console.error(error);
+                    securityOverlay.style.display = 'none';
+                    showFinalMessage("<i class='bx bx-server'></i>", "Connection Error", "Failed to connect to the database. Please try again.", true);
+                }
+            }, 2500); 
+        };
+
+        function showFinalMessage(iconHtml, title, desc, allowRetry) {
+            securityOverlay.style.display = 'none';
+            messageOverlay.style.display = 'flex';
+            
+            msgIcon.innerHTML = iconHtml;
+            msgTitle.innerText = title;
+            msgDesc.innerText = desc;
+
+            if(allowRetry) {
+                retryBtn.style.display = "inline-block";
+            } else {
+                retryBtn.style.display = "none";
+            }
+        }
+    </script>
+</body>
+</html>
