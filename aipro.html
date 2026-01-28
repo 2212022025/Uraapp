@@ -1,0 +1,265 @@
+<!DOCTYPE html><html>
+<head>
+  <title>Utkarsh AI</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #111;
+      color: #fff;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+    }
+    #loading {
+      font-size: 24px;
+      margin-top: 40vh;
+      text-align: center;
+    }
+    #main, #chatUI {
+      display: none;
+      padding: 20px;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+    }
+    h2 {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+    .button-group {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      align-items: center;
+    }
+    button {
+      padding: 15px 30px;
+      font-size: 18px;
+      border: none;
+      background: #ff0055;
+      color: white;
+      border-radius: 8px;
+      width: 90%;
+      max-width: 400px;
+    }
+    #chat {
+      flex: 1;
+      border: 1px solid #444;
+      padding: 10px;
+      overflow-y: auto;
+      background: #222;
+      border-radius: 8px;
+      margin-bottom: 10px;
+      display: flex;
+      flex-direction: column;
+    }
+    .msg {
+      max-width: 80%;
+      padding: 10px 14px;
+      border-radius: 12px;
+      margin: 4px 0;
+      line-height: 1.4em;
+      white-space: pre-wrap;
+      word-break: break-word;
+    }
+    .user-msg {
+      align-self: flex-end;
+      background: #2980b9;
+    }
+    .bot-msg {
+      align-self: flex-start;
+      background: #27ae60;
+    }
+    #typingIndicator {
+      font-style: italic;
+      color: #aaa;
+      margin-left: 8px;
+    }
+    .input-container {
+      display: flex;
+      padding: 10px;
+      background: #000;
+      border-top: 1px solid #444;
+      gap: 10px;
+    }
+    input {
+      flex: 1;
+      padding: 12px;
+      font-size: 16px;
+      border: none;
+      border-radius: 8px;
+    }
+    .send-btn {
+      padding: 12px 20px;
+      background: #00a8ff;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-size: 16px;
+    }
+    .clear-btn {
+      margin-top: 10px;
+      padding: 8px 14px;
+      background: #666;
+      border-radius: 6px;
+      border: none;
+      color: white;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+  <div id="loading">Loading Utkarsh AI...</div>  <div id="main">
+    <h2>Welcome to Utkarsh AI</h2>
+    <div class="button-group">
+      <button onclick="startChat()">Start AI Chat</button>
+      <button onclick="exitApp()">Exit</button>
+    </div>
+  </div>  <div id="chatUI">
+    <h2>🤖 Utkarsh AI Chat</h2>
+    <div id="chat"></div>
+    <div id="typingIndicator"></div>
+    <div class="input-container">
+      <input id="userInput" placeholder="Type your message...">
+      <button class="send-btn" onclick="send()">Send</button>
+    </div>
+    <button class="clear-btn" onclick="clearChat()">🗑 Clear Chat</button>
+  </div>  <script>
+    const API_KEY = "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";
+    const MODEL = "deepseek/deepseek-chat-v3.1:free";
+
+    const abusiveWords = ["fuck", "noob", "chutiya", "madarchod", "bhosdike", "kutte", "mc", "bc", "lodu", "gandu", "behanchod"];
+
+    const appInfo = {
+      "free spin": "🎯 Free Spin gives you a chance to win rewards. Try your luck!",
+      "ura ai assistant": "🤖 That's me! Ask me anything about the app or outside it.",
+      "live news": "📺 Live News shows real-time updates right in the app.",
+      "receiver transmission": "📡 Admin tool for special encrypted transmissions.",
+      "help & report": "🛠 Use it to report bugs or request help.",
+      "warning": "🐶 Contains important notices and terms.",
+      "more info": "ℹ️ Details about the app, developers, and updates."
+    };
+
+    let userName = localStorage.getItem("savedName") || "";
+
+    window.onload = () => {
+      const history = localStorage.getItem("chatHistory");
+      if (history) document.getElementById("chat").innerHTML = history;
+      setTimeout(() => {
+        document.getElementById("loading").style.display = "none";
+        document.getElementById("main").style.display = "flex";
+      }, 2000);
+    };
+
+    function startChat() {
+      document.getElementById("main").style.display = "none";
+      document.getElementById("chatUI").style.display = "flex";
+    }
+
+    function exitApp() {
+      window.close();
+    }
+
+    function isAbusive(msg) {
+      return abusiveWords.some(word => msg.toLowerCase().includes(word));
+    }
+
+    function checkAppQuestions(msg) {
+      msg = msg.toLowerCase();
+      for (let key in appInfo) {
+        if (msg.includes(key)) return appInfo[key];
+      }
+      if (msg.includes("my name is")) {
+        const name = msg.split("my name is")[1].trim().replace(/[^\w\s]/gi, "");
+        localStorage.setItem("savedName", name);
+        userName = name;
+        return `✅ Okay, I saved your name as ${name}.`;
+      }
+      if (msg.includes("what is my name")) {
+        return userName ? `🧠 Your name is ${userName}.` : "❓ I don't know your name yet. Say 'My name is ...'";
+      }
+      if (msg.includes("help")) {
+        return `🆘 Sure${userName ? ", " + userName : ""}! Tell me your issue or check 'Help & Report' section.`;
+      }
+      return null;
+    }
+
+    function typeReply(text, className) {
+      const chat = document.getElementById("chat");
+      const msgDiv = document.createElement("div");
+      msgDiv.className = `msg ${className}`;
+      chat.appendChild(msgDiv);
+
+      let i = 0;
+      const interval = setInterval(() => {
+        msgDiv.textContent += text.charAt(i);
+        i++;
+        chat.scrollTop = chat.scrollHeight;
+        if (i >= text.length) {
+          clearInterval(interval);
+          saveChat();
+        }
+      }, 15);
+    }
+
+    function saveChat() {
+      localStorage.setItem("chatHistory", document.getElementById("chat").innerHTML);
+    }
+
+    function clearChat() {
+      document.getElementById("chat").innerHTML = "";
+      localStorage.removeItem("chatHistory");
+    }
+
+    async function send() {
+      const input = document.getElementById("userInput");
+      const typing = document.getElementById("typingIndicator");
+      const userMsg = input.value.trim();
+      if (!userMsg) return;
+
+      typeReply(userMsg, "user-msg");
+      input.value = "";
+
+      if (isAbusive(userMsg)) {
+        typeReply("Same to you beta 🖕. Baap ki kyu yaad aa gyi?", "bot-msg");
+        return;
+      }
+
+      const localReply = checkAppQuestions(userMsg);
+      if (localReply) {
+        typeReply(localReply, "bot-msg");
+        return;
+      }
+
+      typing.innerText = "AI is typing...";
+
+      const res = await fetch("https://openrouter.ai/api/v1/chat/completions", {
+        method: "POST",
+        headers: {
+          "Authorization": "Bearer " + API_KEY,
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          model: MODEL,
+          messages: [
+            {
+              role: "system",
+              content: "You are a blunt AI chatbot created by Utkarsha and Ura Developers. Replies must be under 200 characters. Never praise anyone unless directly asked. Do not say your creator's name unless asked directly. Never give long intros or soft replies."
+            },
+            { role: "user", content: userMsg }
+          ]
+        })
+      });
+
+      typing.innerText = "";
+
+      const data = await res.json();
+      let aiText = data.choices?.[0]?.message?.content || "⚠️ No response.";
+      if (aiText.length > 200) aiText = aiText.slice(0, 197) + "...";
+      typeReply(aiText, "bot-msg");
+    }
+  </script></body>
+</html>
