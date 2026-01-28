@@ -174,26 +174,6 @@
       transform: scale(1.2) rotate(90deg);  
     }  
 
-    /* 🔥 Full-screen Sync */  
-    #sync-full-screen {  
-        position: fixed;  
-        top: 0;  
-        left: 0;  
-        width: 100vw;  
-        height: 100vh;  
-        z-index: 99999;  
-        background-color: #000;  
-        display: none;  
-        justify-content: center;  
-        align-items: center;  
-    }  
-
-    #sync-full-screen iframe {  
-        width: 100%;  
-        height: 100%;  
-        border: none;  
-    }  
-
     @keyframes popIn {  
       0% { transform: scale(0.2); opacity: 0; }  
       80% { transform: scale(1.1); opacity: 1; }  
@@ -216,20 +196,6 @@
     }  
 
     window.onload = () => {  
-      // Check and trigger the 4-day sync  
-      const FOUR_DAYS_MS = 4 * 24 * 60 * 60 * 1000;  
-      const lastSyncTime = localStorage.getItem('lastSyncTime');  
-      const now = new Date().getTime();  
-
-      if (!lastSyncTime || (now - lastSyncTime) > FOUR_DAYS_MS) {  
-        // Load sync.html in full screen  
-        document.getElementById('sync-full-screen').style.display = 'flex';  
-        document.getElementById('sync-iframe').src = 'sync.html';  
-
-        // Update the last sync time after the sync page has loaded  
-        localStorage.setItem('lastSyncTime', now);  
-      }  
-
       // 🔐 Lock system  
       const url = "https://script.google.com/macros/s/AKfycbxtekKh3jWXQWwuVH3slzpZj8EzyTCZbxKOE-PRVlzlGh9h2S_eknUn50QpuppoX4I83g/exec";  
       fetch(url)  
@@ -252,11 +218,6 @@
 
     function closePopup() {  
       document.getElementById("popupOverlay").style.display = "none";  
-    }  
-
-    function closeSync() {  
-      document.getElementById('sync-full-screen').style.display = 'none';  
-      document.getElementById('sync-iframe').src = ''; // Clear iframe content  
     }  
   </script>  
 </head>  
@@ -295,9 +256,5 @@
       <iframe src="https://uranetworks7-commits.github.io/Update-pop/"></iframe>  
     </div>  
   </div>  
-
-  <div id="sync-full-screen">  
-    <iframe id="sync-iframe"></iframe>  
-    </div>  
 </body>  
 </html>
